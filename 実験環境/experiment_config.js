@@ -13,8 +13,8 @@ const experiment_config = {
   enabledPhases: {
     practice: false,
     block1: false,
-    block2: false,
-    block3: true,
+    block2: true,
+    block3: false,
   },
 
   // 第1ブロックは10話者×6種類、後半の音声ブロックは同じ10話者のニュートラル音声です。
