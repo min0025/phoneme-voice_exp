@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<meta charset="UTF-8" />
+
+<head>
+  <title>Post Experiment Survey Preview</title>
+  <script src="https://unpkg.com/jspsych@7.3.2"></script>
+  <link rel="stylesheet" href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css">
+  <script src="https://unpkg.com/@jspsych/plugin-survey-html-form@1.0.3"></script>
+  <link rel="stylesheet" href="./chara_experiment.css">
+</head>
+
+<body>
+  <script>
+    const jsPsych = initJsPsych();
+  </script>
+  <script src="./post_experiment_forms.js"></script>
+  <script>
+    jsPsych.run([post_experiment_survey]);
+  </script>
+</body>
+
+</html>
