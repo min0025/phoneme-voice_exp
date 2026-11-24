@@ -23,9 +23,16 @@ const experiment_config = {
 
   // 第2・第3ブロックの音声と文字の順序を参加者ごとにランダムに決めます。
   // 文字ブロック内では配列に記載した順に提示します。id は重複させないでください。
-  // 追加する項目の形式は { id: "text_01", text: "提示する文字列" } です。
-  textMainTrialCount: 6,
-  textMainStimuli: [],
+  textMainTrialCount: 7,
+  textMainStimuli: [
+    { id: "text_neutral", text: "今日、机の上にあった紙を三枚数え、箱に入れた" },
+    { id: "text_washi", text: "わしは今日、机に置いてあった紙を三枚数えて箱に入れたのじゃ。" },
+    { id: "text_wagahai", text: "わがはいは今日、机に置いてあった紙を三枚数えて箱に入れたのだ。" },
+    { id: "text_boku", text: "ぼくは今日、机に置いてあった紙を三枚数えて箱に入れたのさ。" },
+    { id: "text_ore", text: "おれは今日、机に置いてあった紙を三枚数えて箱に入れたんだぜ。" },
+    { id: "text_atashi", text: "あたしは今日、机に置いてあった紙を三枚数えて箱に入れたのよ。" },
+    { id: "text_watakushi", text: "わたくしは今日、机に置いてあった紙を三枚数えて箱に入れたのです。" },
+  ],
 
   // DataPipeへの保存先とCSVファイル名の接頭辞です。
   dataPipeExperimentId: "ibgfsqbZCYS1",
