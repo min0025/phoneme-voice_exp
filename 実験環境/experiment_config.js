@@ -11,7 +11,7 @@ const experiment_config = {
   // デバッグ用。false にしたフェーズを省略し、結果はDataPipeに送信しません。
   // block2 / block3 は提示順の番号です。音声・文字の割り当てはランダムです。
   enabledPhases: {
-    practice: true,
+    practice: false,
     block1: false,
     block2: false,
     block3: true,
