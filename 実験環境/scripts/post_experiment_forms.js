@@ -64,7 +64,7 @@ const demographics = {
 // =========================
 // 実験後アンケート
 // =========================
-// 実験後の不具合や参加状況をまとめて確認するアンケートです。
+// 実験後に参加状況や評価の手がかりを確認するアンケートです。
 const post_experiment_survey = {
   type: jsPsychSurveyHtmlForm,
   preamble:
@@ -95,8 +95,19 @@ const post_experiment_survey = {
         <label><input name="interrupted" type="radio" value="yes" required> はい</label><br>
         <label><input name="interrupted" type="radio" value="no"> いいえ</label>
 
-        <p style="margin-top: 28px;"><b>6. よろしければ、実験中の不具合や他に気づいたことがあれば、こちらにご記入ください（任意回答）</b></p>
+        <p style="margin-top: 28px; margin-bottom: 0;"><b><label for="evaluation-cues">6. 印象を評価したり、思い浮かんだ人物像を選んだりする際、どのような点を手がかりにしましたか？（任意回答）</label></b></p>
+        <p id="evaluation-cues-help" style="margin-top: 4px;">例：声の質、セリフの内容、言葉づかいなど。音声と文章で手がかりが異なった場合は、それぞれについてお書きください。</p>
         <textarea
+          id="evaluation-cues"
+          name="evaluation_cues"
+          aria-describedby="evaluation-cues-help"
+          rows="6"
+          style="width: 100%; max-width: 100%; font-size: 16px; padding: 10px; box-sizing: border-box;"
+        ></textarea>
+
+        <p style="margin-top: 28px;"><b><label for="free-comment">7. よろしければ、実験中の不具合や他に気づいたことがあれば、こちらにご記入ください（任意回答）</label></b></p>
+        <textarea
+          id="free-comment"
           name="free_comment"
           rows="6"
           style="width: 100%; max-width: 100%; font-size: 16px; padding: 10px; box-sizing: border-box;"

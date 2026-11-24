@@ -21,7 +21,7 @@ const voice_task_steps_html = `
       「再生」をクリックして、音声を最後まで聞いてください。<b>各音声は一度だけ再生できます。</b>
     </li>
     <li style="margin-bottom: 18px;">
-      再生後、<b>Q1で音声の印象を6項目それぞれ7段階で、Q2で音声の自然さを7段階で</b>評価してください。
+      再生後、<b>Q1で音声の印象を6項目それぞれ7段階で、Q2で話している言葉と声の質の組み合わせの自然さを7段階で</b>評価してください。
       Q3では最も当てはまる人物像を1つ選び、Q4ではQ3で選んだ人物像も含めて、当てはまるものをすべて選んでください。
     </li>
   </ol>
@@ -106,7 +106,7 @@ const practice_intermission = {
         </p>
         ${voice_task_steps_html}
         <img class="task-flow-image" src="./assets/images/audio-task-flow.png"
-             alt="音声の手順。再生して最後まで聞く。印象、自然さ、人物像の4問に答えて次の音声へ進む。">
+             alt="音声の手順。再生して最後まで聞く。印象、言葉と声の相性、人物像の4問に答えて次の音声へ進む。">
         <h2 style="font-size: 22px; margin: 28px 0 16px;">文字を読む課題（Q1〜Q3）</h2>
         <ol style="font-size: 18px; line-height: 1.9; padding-left: 1.8em; margin: 0 0 28px 0;">
           <li style="margin-bottom: 18px;">画面上部に表示される文を読み、その下の設問に回答してください。</li>
@@ -162,7 +162,7 @@ const intermission = {
 
 function createBlockNotice(blockNumber, modality) {
   const instruction = modality === "audio"
-    ? "音声を最後まで聞いて、印象と自然さを評価し、想起する人物像を選んでください。"
+    ? "音声を最後まで聞いてください。音声の印象や、言葉と声の組み合わせの自然さを評価し、想起する人物像を選んでください。"
     : "画面に表示される文字を読んで、印象と想起する人物像を回答してください。";
 
   return {

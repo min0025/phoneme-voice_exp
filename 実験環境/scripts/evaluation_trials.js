@@ -113,12 +113,12 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
 
     ${isAudio ? `
     <fieldset class="naturalness-question">
-      <legend>Q2. 今の音声はどの程度自然に聞こえましたか？</legend>
+      <legend>Q2. 話している言葉（セリフ）と声の質の組み合わせは、どの程度自然に感じられましたか？</legend>
       <div class="naturalness-scale">
         ${naturalness_scale.map((label, index) => `
           <label>
             <input type="radio" name="naturalness" value="${index + 1}" disabled>
-            <span>${index + 1}. ${label}</span>
+            <span>${label}</span>
           </label>
         `).join("")}
       </div>
