@@ -30,9 +30,6 @@ const all_stimuli = Array.from({ length: 25 }, (_, i) => {
   };
 });
 
-// 今回の本試行では定義済みの1〜25番音声を提示します。
-const assigned_stimuli = jsPsych.randomization.shuffle(all_stimuli);
-
 // 練習用に使う2音声のメタデータです。
 const practice_stimuli = [
   {
@@ -87,12 +84,15 @@ const likert_scale = [
 ];
 
 // =========================
-// 各音声に対する評価画面の生成
+// 音声・文字刺激に対する評価画面の生成
 // =========================
-// 音声再生から印象評価・人物像回答までの1試行群を生成します。
-function createVoiceTrials(stimuli, options = {}) {
-  // 表示ラベルと保存用のブロック名を呼び出し側から受け取ります。
-  const { phaseLabel, blockName, questionText } = options;
+function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }) {
+  const isAudio = modality === "audio";
+  const isPractice = phase === "practice";
+  const stimulusLabel = isAudio ? "音声" : "文字刺激";
+  const blockName = isPractice ? "practice_voice" : isAudio ? "voice_main" : "text_main";
+  const trialLabel = isPractice ? "練習" : `第${blockNumber}ブロック`;
+  const instructions = isAudio ? "再生ボタンで音声を聞き" : "画面に表示された文字を読み";
 
   return stimuli.map((stim, index) => {
     const shuffled_adjectives = jsPsych.randomization.shuffle([...adjectives]);
@@ -103,33 +103,33 @@ function createVoiceTrials(stimuli, options = {}) {
       button_label: "次へ",
       html: `
   <div class="stimulus-box">
-    <p style="font-size: 30px;"><b>${phaseLabel}${index + 1} / ${stimuli.length} 音声目</b></p>
+    <p style="font-size: 30px;"><b>${trialLabel} ・ ${index + 1} / ${stimuli.length} 試行</b></p>
   </div>
 
   <p style="font-size: 19px; margin-top: 10px;">
-      <b>${questionText}</b>
+      <b>${instructions}、Q1〜Q3に回答してください。</b>
   </p>
 
-  <p style="font-size: 19px; margin-bottom: 40px;">
+  ${isAudio ? `<p style="font-size: 19px; margin-bottom: 40px;">
       <b>※音声は一度しか流れません</b>
   </p>
 
   <div style="text-align: center; margin-bottom: 30px;">
     <button type="button" id="playBtn">再生</button>
     <audio id="audioElem" src="${stim.file}"></audio>
-  </div>
+  </div>` : '<p id="text-stimulus" class="text-stimulus"></p>'}
   <hr>
 
-  <div id="question-area" style="visibility: hidden; pointer-events: none;">
+  <div id="question-area"${isAudio ? ' style="visibility: hidden; pointer-events: none;"' : ""}>
     <p style="font-size: 19px; margin-top: 50px;">
-      <b>Q1. 流れた音声の印象について、下記の項目に最もよく当てはまるものを答えてください</b>
+      <b>Q1. ${stimulusLabel}の印象について、下記の項目に最もよく当てはまるものを答えてください</b>
     </p>
 
     <div id="sd-container"></div>
     <hr>
 
     <p style="margin-top: 45px;">
-      <b style="font-size: 19px;">Q1. 流れた音声から<U>最も</U>当てはまる「人物像」を<U>1つ選んでください</U></b>
+      <b style="font-size: 19px;">Q2. ${stimulusLabel}から想起する「人物像」として<U>最も</U>当てはまるものを<U>1つ選んでください</U></b>
     </p>
     <div class="bio-group">
       ${likert_bio.map(opt => `
@@ -141,8 +141,8 @@ function createVoiceTrials(stimuli, options = {}) {
     </div>
 
     <p style="margin-top: 100px;">
-      <b style="font-size: 19px; margin-top: 100px;">Q2. 流れた音声から当てはまる「人物像」を<U><b>1問目の回答も含めて</b>全て選んでください</U><br>(
-      1問目で回答した選択肢しか当てはまらない場合は、1問目と同じように回答してください）</b>
+      <b style="font-size: 19px; margin-top: 100px;">Q3. ${stimulusLabel}から想起する「人物像」として当てはまるものを<U>Q2の回答も含めて全て選んでください</U><br>
+      （Q2で回答した選択肢だけが当てはまる場合は、その選択肢だけを選んでください）</b>
     </p>
     <div class="bio-group">
       ${likert_bio.map(opt => `
@@ -159,18 +159,17 @@ function createVoiceTrials(stimuli, options = {}) {
         stim_num: stim.stim_num ?? null,
         speaker_id: stim.speaker_id ?? null,
         speaker_gender: stim.speaker_gender ?? null,
-        group: blockName === "practice_voice" ? "practice" : 0,
+        group: isPractice ? "practice" : 0,
         block: blockName,
+        block_number: blockNumber,
+        stimulus_modality: modality,
+        stimulus_text: stim.text ?? null,
       },
-      // 音声再生後にだけ回答欄を開放するUI制御を行います。
       on_load: () => {
         const form = document.querySelector("#jspsych-survey-html-form");
-        const questionArea = document.getElementById("question-area");
-        const audio = document.getElementById("audioElem");
-        const playBtn = document.getElementById("playBtn");
         const submitBtn = document.querySelector("#jspsych-survey-html-form-next");
 
-        let audioFinished = false;
+        let stimulusReady = !isAudio;
         let html = "";
 
         shuffled_adjectives.forEach((pair, i) => {
@@ -211,15 +210,15 @@ function createVoiceTrials(stimuli, options = {}) {
         // 複数選択の人物像が1つ以上選ばれているかを判定します。
         const bio2Ok = () =>
           form.querySelectorAll('input[name^="bio2_"]:checked').length > 0;
-        const allOk = () => audioFinished && sdOk() && bio1Ok() && bio2Ok();
+        const allOk = () => stimulusReady && sdOk() && bio1Ok() && bio2Ok();
 
-        // 音声再生状況に応じて入力欄と次へボタンの状態を更新します。
+        // 刺激の提示状況と回答内容に応じて入力欄を更新します。
         const updateState = () => {
           form.querySelectorAll('input[name^="sd_"], input[name="bio1"]').forEach(el => {
-            el.disabled = !audioFinished;
+            el.disabled = !stimulusReady;
           });
 
-          const enableBio2 = audioFinished && bio1Ok();
+          const enableBio2 = stimulusReady && bio1Ok();
           form.querySelectorAll('input[name^="bio2_"]').forEach(el => {
             el.disabled = !enableBio2;
           });
@@ -227,35 +226,43 @@ function createVoiceTrials(stimuli, options = {}) {
           submitBtn.disabled = !allOk();
         };
 
-        submitBtn.disabled = true;
-        form.querySelectorAll("input").forEach(el => el.disabled = true);
+        if (isAudio) {
+          const questionArea = document.getElementById("question-area");
+          const audio = document.getElementById("audioElem");
+          const playBtn = document.getElementById("playBtn");
 
-        playBtn.addEventListener("click", () => {
-          playBtn.disabled = true;
-          playBtn.textContent = "再生中...";
-          audio.currentTime = 0;
-          audio.play();
-        });
+          playBtn.addEventListener("click", () => {
+            playBtn.disabled = true;
+            playBtn.textContent = "再生中...";
+            audio.currentTime = 0;
+            audio.play().catch(() => {
+              playBtn.disabled = false;
+              playBtn.textContent = "再生を再試行";
+            });
+          });
 
-        audio.addEventListener("ended", () => {
-          playBtn.textContent = "再生済み";
-          questionArea.style.visibility = "visible";
-          questionArea.style.pointerEvents = "auto";
-          audioFinished = true;
-          updateState();
-        });
+          audio.addEventListener("ended", () => {
+            playBtn.textContent = "再生済み";
+            questionArea.style.visibility = "visible";
+            questionArea.style.pointerEvents = "auto";
+            stimulusReady = true;
+            updateState();
+          });
+        } else {
+          document.getElementById("text-stimulus").textContent = stim.text;
+        }
 
-        form.addEventListener("change", () => {
-          updateState();
-        });
+        updateState();
+        form.addEventListener("change", updateState);
 
         form.addEventListener("submit", (e) => {
           updateState();
           if (!allOk()) {
             e.preventDefault();
+            e.stopImmediatePropagation();
             alert("未回答があります。SD法6項目・単一選択1問・複数選択1問のすべてに回答してください。");
           }
-        });
+        }, { capture: true });
 
         setTimeout(() => {
           if (form && submitBtn) {
@@ -284,23 +291,3 @@ function createVoiceTrials(stimuli, options = {}) {
     };
   });
 }
-
-// =========================
-// 練習試行・本試行の生成
-// =========================
-// 練習用2試行を実際の trial 配列へ変換します。
-const practice_trials = createVoiceTrials(
-  jsPsych.randomization.shuffle([...practice_stimuli]),
-  {
-    phaseLabel: "練習 ",
-    blockName: "practice_voice",
-    questionText: "これは練習試行です。再生ボタンで音声を聞き、Q1 ~ Q3までの各問に回答してください",
-  }
-);
-
-// 割り当てられた25音声を本試行の trial 配列へ変換します。
-const trials_combined = createVoiceTrials(assigned_stimuli, {
-  phaseLabel: "",
-  blockName: "voice_main",
-  questionText: "再生ボタンで音声を聞き、Q1 ~ Q3までの各問に回答してください",
-});

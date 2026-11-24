@@ -10,9 +10,6 @@ const voice_task_steps_html = `
     <li style="margin-bottom: 18px;">
       すべての項目に回答すると「次へ」ボタンが押せるようになります。準備が出来次第ボタンをクリックして次の音声に進んでください。
     </li>
-    <li style="margin-bottom: 22px;">
-      音声は、全部で<b><u>25回</u></b>聞いていただきます。すべての音声について評価が終わると「お疲れ様でした」という案内画面が表示されます。
-    </li>
   </ol>
 `;
 
@@ -24,7 +21,7 @@ const experiment_notice = {
       <div style="max-width: 1200px; margin: 0 auto; padding: 0 32px; box-sizing: border-box;">
         <h1>本実験に進む前に</h1><br>
         <p style="font-size: 20px">この度は、実験にご参加くださりありがとうございます。</p>
-        <p style="font-size: 20px">本実験では、複数の音声を聴取し、それぞれの印象および想起する人物像を回答していただきます。</p>
+        <p style="font-size: 20px">第1・第2ブロックでは音声を聞き、第3ブロックでは画面に表示された文字を読んで、それぞれの印象や想起する人物像を回答していただきます。</p>
         <p style="font-size: 20px">実験の所要時間は、説明、事後アンケートを含めて30分程度です。</p>
         <p style="font-size: 20px"><U><b>次の画面から全画面表示に切り替わります。</b></U></p>
         <p style="font-size: 20px; margin-bottom: 50px;">内容を確認できましたら、下の「次へ」をクリックしてください。</p>
@@ -97,7 +94,7 @@ const practice_intermission = {
           >
         </div>
         <p style="font-size: 20px; margin: 0;">
-          流れを理解していただくために、<u><b>一度練習していただきます</b></u>。準備ができたら「次へ」ボタンをクリックしてください。
+          第1ブロックの前に練習を行います。準備ができたら「次へ」ボタンをクリックしてください。
         </p>
       </div>`,
   choices: ["次へ"],
@@ -143,7 +140,7 @@ const intermission = {
           ※もし、現段階や実験中に参加を取りやめます場合は、<u><b>Escキー</b></u>を押してブラウザを閉じてください。（謝礼はお支払いできませんのでご了承ください）
         </p>
         <p style="font-size: 20px; margin: 0;">
-          それでは、準備が出来次第「次へ」ボタンを押して本番に進んでください。
+          準備ができたら「次へ」ボタンを押して、第1ブロックの本試行に進んでください。
         </p>
       </div>`,
   choices: ["次へ"],
@@ -163,6 +160,25 @@ const intermission = {
     button.style.marginTop = "0";
     button.style.marginBottom = "48px";
   },
+};
+
+const second_audio_block_notice = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <h1>第2ブロック</h1>
+    <p>引き続き、音声を最後まで聞いて、印象と想起する人物像を回答してください。</p>
+  `,
+  choices: ["次へ"],
+};
+
+const text_block_notice = {
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `
+    <h1>第3ブロック</h1>
+    <p>画面に表示される文字を読んで、印象と想起する人物像を回答してください。</p>
+    <p>すべての項目に回答すると「次へ」ボタンを押せるようになります。</p>
+  `,
+  choices: ["次へ"],
 };
 
 // 実験本体の終了後に全画面表示を解除する処理です。

@@ -2,32 +2,68 @@
 // 本実験全体のフロー
 // =========================
 function main_experiment() {
+  const {
+    firstAudioBlockTrialCount,
+    textMainStimuli,
+  } = experiment_config;
+
+  const audioStimuli = jsPsych.randomization.shuffle([...all_stimuli]);
+  if (!Number.isInteger(firstAudioBlockTrialCount) ||
+      firstAudioBlockTrialCount < 1 ||
+      firstAudioBlockTrialCount >= audioStimuli.length) {
+    throw new RangeError("第1ブロックの試行数は1以上、音声の総数未満にしてください。");
+  }
+
+  const audioPractice = createEvaluationTrials(
+    jsPsych.randomization.shuffle([...practice_stimuli]),
+    { modality: "audio", phase: "practice" }
+  );
+  const firstAudioBlock = createEvaluationTrials(
+    audioStimuli.slice(0, firstAudioBlockTrialCount),
+    { blockNumber: 1, modality: "audio", phase: "main" }
+  );
+  const secondAudioBlock = createEvaluationTrials(
+    audioStimuli.slice(firstAudioBlockTrialCount),
+    { blockNumber: 2, modality: "audio", phase: "main" }
+  );
+  const textBlock = createEvaluationTrials(textMainStimuli, {
+    blockNumber: 3, modality: "text", phase: "main",
+  });
+
+  // 空の文字ブロックで実験を完了できないようにします。
+  const textTimeline = textBlock.length > 0 ? [
+    text_block_notice,
+    gap,
+    ...textBlock,
+    gap,
+  ] : [{
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: "<p>第3ブロックの文字刺激が設定されていないため、実験を続けられません。</p>",
+    choices: "NO_KEYS",
+  }];
+
   return [
-    // 本試行前の概要説明です。
     experiment_notice,
     gap,
-    // 全画面表示中の注意事項確認です。
     fullscreen_notice,
     gap,
-    // 練習試行前の課題説明です。
     practice_intermission,
     gap,
-    // 練習用2試行です。
-     ...practice_trials,
+    ...audioPractice,
     gap,
-    // 練習後に本試行前の再確認を行います。
     intermission,
     gap,
-    // 本試行25音声分です。
-     ...trials_combined,
+    ...firstAudioBlock,
     gap,
-    // 実験後の属性回答です。
+    second_audio_block_notice,
+    gap,
+    ...secondAudioBlock,
+    gap,
+    ...textTimeline,
     demographics,
     gap,
-    // 実験後アンケートです。
     post_experiment_survey,
     gap,
-    // 確認コード表示前に全画面を解除します。
     exit_fullscreen,
   ];
 }
