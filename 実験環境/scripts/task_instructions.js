@@ -14,20 +14,20 @@ function spaceInstructionButton() {
   button.style.marginBottom = "48px";
 }
 
-// 印象評価課題の共通手順を説明ページで再利用するためのHTML断片です。
+// 音声評価の手順を課題説明と本試行前の確認で共通して使います。
 const voice_task_steps_html = `
   <ol style="font-size: 18px; line-height: 1.9; padding-left: 1.8em; margin: 0 0 28px 0;">
     <li style="margin-bottom: 18px;">
-      実験が開始されると、画面に再生ボタンが表示されます。再生ボタンをクリックすると、音声が流れます。<u><b>音声は最後まで注意して聞いてください。</b></u>
+      「再生」をクリックして、音声を最後まで聞いてください。<b>各音声は一度だけ再生できます。</b>
     </li>
     <li style="margin-bottom: 18px;">
-      音声の再生が終わると、<b>音声の印象に関する6項目（Q1）、音声の自然さ（Q2）、想起する人物像に関する2問（Q3〜Q4）</b>が表示されます。すべての項目に回答してください。
-    </li>
-    <li style="margin-bottom: 18px;">
-      すべての項目に回答すると「次へ」ボタンが押せるようになります。準備が出来次第ボタンをクリックして次の音声に進んでください。
+      再生後、<b>Q1で音声の印象を6項目それぞれ7段階で、Q2で音声の自然さを7段階で</b>評価してください。
+      Q3では最も当てはまる人物像を1つ選び、Q4ではQ3で選んだ人物像も含めて、当てはまるものをすべて選んでください。
     </li>
   </ol>
 `;
+
+const next_stimulus_instruction = "すべての項目に回答すると「次へ」を押せるようになります。";
 
 // 本実験の概要と全画面化の予告を出す最初の説明ページです。
 function createExperimentNotice(showOverview, fullscreen) {
@@ -88,15 +88,16 @@ function createPrecautionsNotice(fullscreen, postExperimentSurvey) {
   };
 }
 
-// 練習試行に入る前に課題内容と流れを説明するページです。
+// 音声と文字の評価課題を説明するページです。
 const practice_intermission = {
   type: jsPsychHtmlButtonResponse,
   stimulus: `
       <div style="max-width: 1280px; margin: 0 auto; padding: 52px 32px 72px; box-sizing: border-box; text-align: left; color: #000;">
         <h1 style="font-size: 34px; text-align: center; margin: 0 0 48px 0;">印象評価課題について</h1>
         <p style="font-size: 20px; margin: 0 0 20px 0;">
-          本実験では、音声の印象と自然さを評価し、想起する人物像を選んでいただきます。
+          音声を聞く課題と、画面に表示された文を読む課題があります。それぞれについて、感じた印象や思い浮かんだ人物像を回答してください。
         </p>
+        <h2 style="font-size: 22px; margin: 28px 0 16px;">音声を聞く課題（Q1〜Q4）</h2>
         <p style="font-size: 20px; margin: 0 0 20px 0;">
           <b><u>「イヤホン」または「ヘッドホン」を装着していることを、ここでもう一度ご確認ください。可能であれば「有線」のものをご使用ください。</u></b>
         </p>
@@ -104,10 +105,24 @@ const practice_intermission = {
           <b><u>また、パソコンのサウンド環境が「モノラル」ではなく「ステレオ」になっていることもご確認ください。</u></b>
         </p>
         ${voice_task_steps_html}
-        <p style="font-size: 18px; margin: 0 0 8px 0;"><b>※なお、<u>音声は一度しか流れません</u>のでご注意ください</b></p>
-        <p style="font-size: 18px; margin: 0 0 24px 0;">※あまり深く考えすぎず、感じたままに回答してください</p>
+        <img class="task-flow-image" src="./assets/images/audio-task-flow.png"
+             alt="音声の手順。再生して最後まで聞く。印象、自然さ、人物像の4問に答えて次の音声へ進む。">
+        <h2 style="font-size: 22px; margin: 28px 0 16px;">文字を読む課題（Q1〜Q3）</h2>
+        <ol style="font-size: 18px; line-height: 1.9; padding-left: 1.8em; margin: 0 0 28px 0;">
+          <li style="margin-bottom: 18px;">画面上部に表示される文を読み、その下の設問に回答してください。</li>
+          <li style="margin-bottom: 18px;">
+            <b>Q1で文の印象を6項目それぞれ7段階で</b>評価してください。
+            Q2では最も当てはまる人物像を1つ選び、Q3ではQ2で選んだ人物像も含めて、当てはまるものをすべて選んでください。
+          </li>
+        </ol>
+        <img class="task-flow-image" src="./assets/images/text-task-flow.png"
+             alt="文章の手順。画面上部の文を読む。印象と人物像の3問に答えて次の文章へ進む。">
+        <p style="font-size: 18px; margin: 0 0 24px 0;">
+          どちらの課題も、あまり深く考えすぎず、感じたままに回答してください。${next_stimulus_instruction}
+        </p>
         <p style="font-size: 20px; margin: 0;">
-          ここから練習を行います。準備ができたら「次へ」ボタンをクリックしてください。
+          ${experiment_config.enabledPhases.practice ? "このあと、音声を聞く課題の練習を行います。" : ""}
+          準備ができたら「次へ」をクリックしてください。
         </p>
       </div>`,
   choices: ["次へ"],
@@ -133,7 +148,7 @@ const intermission = {
           下記の手順を今一度ご確認ください。
         </p>
         ${voice_task_steps_html}
-        <p style="font-size: 17px; margin: 0 0 18px 0;"><b>※なお、<u>音声は一度しか流れません</u>のでご注意ください</b></p>
+        <p style="font-size: 17px; margin: 0 0 18px 0;">${next_stimulus_instruction}</p>
         <p style="font-size: 17px; margin: 0 0 18px 0;">
           ※もし、現段階や実験中に参加を取りやめます場合は、<u><b>Escキー</b></u>を押してブラウザを閉じてください。（謝礼はお支払いできませんのでご了承ください）
         </p>
