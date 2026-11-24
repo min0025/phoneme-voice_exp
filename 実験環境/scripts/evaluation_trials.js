@@ -41,6 +41,7 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
   const blockName = isPractice ? "practice_voice" : isAudio ? "voice_main" : "text_main";
   const trialLabel = isPractice ? "練習" : `第${blockNumber}ブロック`;
   const instructions = isAudio ? "再生ボタンで音声を聞き" : "画面に表示された文字を読み";
+  const longestTextLength = isAudio ? 0 : Math.max(1, ...stimuli.map(stim => Array.from(stim.text).length));
 
   return stimuli.map((stim, index) => {
     const shuffled_adjectives = jsPsych.randomization.shuffle([...adjectives]);
@@ -54,6 +55,13 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
     <p style="font-size: 30px;"><b>${trialLabel} ・ ${index + 1} / ${stimuli.length} 試行</b></p>
   </div>
 
+  ${isAudio ? "" : `
+  <div class="text-stimulus-container" style="--text-stimulus-length: ${longestTextLength}">
+    <div class="text-stimulus-box">
+      <p id="text-stimulus" class="text-stimulus"></p>
+    </div>
+  </div>`}
+
   <p style="font-size: 19px; margin-top: 10px;">
       <b>${instructions}、Q1〜Q3に回答してください。</b>
   </p>
@@ -65,7 +73,7 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
   <div style="text-align: center; margin-bottom: 30px;">
     <button type="button" id="playBtn">再生</button>
     <audio id="audioElem" src="${stim.file}"></audio>
-  </div>` : '<p id="text-stimulus" class="text-stimulus"></p>'}
+  </div>` : ""}
   <hr>
 
   <div id="question-area"${isAudio ? ' style="visibility: hidden; pointer-events: none;"' : ""}>

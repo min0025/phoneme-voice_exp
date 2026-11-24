@@ -135,10 +135,36 @@
   word-break: keep-all;  /* ←日本語改行防止 */
 }
 
+#jspsych-content:has(.text-stimulus-container) {
+  max-width: min(100vw, 1900px);
+}
+
+.text-stimulus-container {
+  container-type: inline-size;
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.text-stimulus-box {
+  --text-stimulus-box-width: min(100cqi, 90vw, 1100px);
+  --text-stimulus-padding: clamp(8px, 2vw, 20px);
+  --text-stimulus-border: 2px;
+  display: inline-block;
+  box-sizing: border-box;
+  max-width: var(--text-stimulus-box-width);
+  padding: var(--text-stimulus-padding);
+  border: var(--text-stimulus-border) solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
 .text-stimulus {
-  margin: 30px auto;
-  font-size: 28px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  margin: 0;
+  /* 全刺激で、最長の文が一行に収まる大きさを使います。 */
+  font-size: min(50px, calc(
+    (var(--text-stimulus-box-width) - 2 * (var(--text-stimulus-padding) + var(--text-stimulus-border)))
+    / var(--text-stimulus-length)
+  ));
+  line-height: 1.4;
+  white-space: nowrap;
 }
