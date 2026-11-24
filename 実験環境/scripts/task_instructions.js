@@ -110,7 +110,7 @@ const practice_intermission = {
           >
         </div>
         <p style="font-size: 20px; margin: 0;">
-          第1ブロックの前に練習を行います。準備ができたら「次へ」ボタンをクリックしてください。
+          ここから練習を行います。準備ができたら「次へ」ボタンをクリックしてください。
         </p>
       </div>`,
   choices: ["次へ"],

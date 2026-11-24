@@ -8,6 +8,15 @@ const experiment_config = {
   // パスは experiment.html を基準に指定します。
   volumeAudioPath: "./assets/practice/VOICEACTRESS100_026_006.wav",
 
+  // デバッグ用。false にしたフェーズを省略し、結果はDataPipeに送信しません。
+  // block2 / block3 は提示順の番号です。音声・文字の割り当てはランダムです。
+  enabledPhases: {
+    practice: true,
+    block1: false,
+    block2: false,
+    block3: true,
+  },
+
   // 第1ブロックは10話者×6種類、後半の音声ブロックは同じ10話者のニュートラル音声です。
   audioSpeakerIds: ["jvs016", "jvs028", "jvs034", "jvs042", "jvs043", "jvs045", "jvs079", "jvs084", "jvs090", "jvs091"],
   phonemeVoiceLabels: ["あたし型", "おれ型", "ぼく型", "わがはい型", "わし型", "わたくし型"],

@@ -38,3 +38,9 @@ const thanks = {
       '</div>',
     choices: "NO_KEYS"
 };
+
+const debug_end = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "<h1>デバッグ実行が終了しました</h1>",
+  choices: "NO_KEYS",
+};
