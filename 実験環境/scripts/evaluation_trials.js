@@ -113,7 +113,7 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
 
     ${isAudio ? `
     <fieldset class="naturalness-question">
-      <legend>Q2. 話している言葉（セリフ）と声の質の組み合わせは、どの程度自然に感じられましたか？</legend>
+      <legend>Q2. 言葉と声の組み合わせは、どの程度自然に感じられましたか？</legend>
       <div class="naturalness-scale">
         ${naturalness_scale.map((label, index) => `
           <label>
