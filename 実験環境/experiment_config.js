@@ -1,20 +1,30 @@
 const experiment_config = {
-  // false にするとクラウドワークス作業者IDの入力画面を省略します。
-  collectWorkerId: false,
-
-  // false にするとヘッドホン・イヤホンのスクリーニングを省略します。
-  enableScreening: false,
-
   // パスは experiment.html を基準に指定します。
   volumeAudioPath: "./assets/practice/VOICEACTRESS100_026_006.wav",
 
-  // デバッグ用。false にしたフェーズを省略し、結果はDataPipeに送信しません。
-  // block2 / block3 は提示順の番号です。音声・文字の割り当てはランダムです。
+  // false にした画面や試行を省略します。案内と試行は個別に切り替えられます。
+  // workerId と screening は任意です。それ以外を省略するとDataPipeに送信しません。
   enabledPhases: {
+    consent: true,
+    workerId: false,
+    screening: false,
+    volumeAdjustment: true,
+    overview: true,
+    fullscreen: true, // 入室時の全画面化と終了時の解除
+    precautions: true,
+    practiceInstructions: true,
     practice: false,
+    block1Instructions: false,
     block1: false,
+    block2Instructions: true,
     block2: true,
+    block3Instructions: false,
     block3: false,
+    demographics: true,
+    postExperimentSurvey: true,
+    saveResults: true,
+    completionScreen: true,
+    gaps: true, // 画面切り替え時の空白
   },
 
   // 第1ブロックは10話者×6種類、後半の音声ブロックは同じ10話者のニュートラル音声です。

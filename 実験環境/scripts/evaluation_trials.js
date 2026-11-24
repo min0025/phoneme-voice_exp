@@ -31,6 +31,16 @@ const likert_scale = [
   "<span style='font-size: 17px;'><p>とても<br>当てはまる</br></p></span>",
 ];
 
+const naturalness_scale = [
+  "非常に不自然",
+  "不自然",
+  "やや不自然",
+  "どちらともいえない",
+  "やや自然",
+  "自然",
+  "非常に自然",
+];
+
 // =========================
 // 音声・文字刺激に対する評価画面の生成
 // =========================
@@ -41,6 +51,8 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
   const blockName = isPractice ? "practice_voice" : isAudio ? "voice_main" : "text_main";
   const trialLabel = isPractice ? "練習" : `第${blockNumber}ブロック`;
   const instructions = isAudio ? "再生ボタンで音声を聞き" : "画面に表示された文字を読み";
+  const singleChoiceNumber = isAudio ? 3 : 2;
+  const lastQuestionNumber = singleChoiceNumber + 1;
   const longestTextLength = isAudio ? 0 : Math.max(1, ...stimuli.map(stim => Array.from(stim.text).length));
 
   return stimuli.map((stim, index) => {
@@ -63,7 +75,7 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
   </div>`}
 
   <p style="font-size: 19px; margin-top: 10px;">
-      <b>${instructions}、Q1〜Q3に回答してください。</b>
+      <b>${instructions}、Q1〜Q${lastQuestionNumber}に回答してください。</b>
   </p>
 
   ${isAudio ? `<p style="font-size: 19px; margin-bottom: 40px;">
@@ -99,8 +111,22 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
     </div>
     <hr>
 
+    ${isAudio ? `
+    <fieldset class="naturalness-question">
+      <legend>Q2. 今の音声はどの程度自然に聞こえましたか？</legend>
+      <div class="naturalness-scale">
+        ${naturalness_scale.map((label, index) => `
+          <label>
+            <input type="radio" name="naturalness" value="${index + 1}" disabled>
+            <span>${index + 1}. ${label}</span>
+          </label>
+        `).join("")}
+      </div>
+    </fieldset>
+    <hr>` : ""}
+
     <p style="margin-top: 45px;">
-      <b style="font-size: 19px;">Q2. ${stimulusLabel}から想起する「人物像」として<U>最も</U>当てはまるものを<U>1つ選んでください</U></b>
+      <b style="font-size: 19px;">Q${singleChoiceNumber}. ${stimulusLabel}から想起する「人物像」として<U>最も</U>当てはまるものを<U>1つ選んでください</U></b>
     </p>
     <div class="bio-group">
       ${likert_bio.map(opt => `
@@ -112,8 +138,8 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
     </div>
 
     <p style="margin-top: 100px;">
-      <b style="font-size: 19px; margin-top: 100px;">Q3. ${stimulusLabel}から想起する「人物像」として当てはまるものを<U>Q2の回答も含めて全て選んでください</U><br>
-      （Q2で回答した選択肢だけが当てはまる場合は、その選択肢だけを選んでください）</b>
+      <b style="font-size: 19px; margin-top: 100px;">Q${lastQuestionNumber}. ${stimulusLabel}から想起する「人物像」として当てはまるものを<U>Q${singleChoiceNumber}の回答も含めて全て選んでください</U><br>
+      （Q${singleChoiceNumber}で回答した選択肢だけが当てはまる場合は、その選択肢だけを選んでください）</b>
     </p>
     <div class="bio-group">
       ${likert_bio.map(opt => `
@@ -148,16 +174,18 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
             !!form.querySelector(`input[name="sd_${i}"]:checked`)
           );
 
+        const naturalnessOk = () => !isAudio || !!form.querySelector('input[name="naturalness"]:checked');
+
         // 単一選択の人物像が選ばれているかを判定します。
         const bio1Ok = () => !!form.querySelector('input[name="bio1"]:checked');
         // 複数選択の人物像が1つ以上選ばれているかを判定します。
         const bio2Ok = () =>
           form.querySelectorAll('input[name^="bio2_"]:checked').length > 0;
-        const allOk = () => stimulusReady && sdOk() && bio1Ok() && bio2Ok();
+        const allOk = () => stimulusReady && sdOk() && naturalnessOk() && bio1Ok() && bio2Ok();
 
         // 刺激の提示状況と回答内容に応じて入力欄を更新します。
         const updateState = () => {
-          form.querySelectorAll('input[name^="sd_"], input[name="bio1"]').forEach(el => {
+          form.querySelectorAll('input[name^="sd_"], input[name="naturalness"], input[name="bio1"]').forEach(el => {
             el.disabled = !stimulusReady;
           });
 
@@ -203,7 +231,7 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
           if (!allOk()) {
             e.preventDefault();
             e.stopImmediatePropagation();
-            alert("未回答があります。SD法6項目・単一選択1問・複数選択1問のすべてに回答してください。");
+            alert("未回答があります。すべての設問に回答してください。");
           }
         }, { capture: true });
 
@@ -225,6 +253,9 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
             val !== undefined && val !== "" ? Number(val) : null;
         });
 
+        if (isAudio) {
+          data.naturalness = res.naturalness ? Number(res.naturalness) : null;
+        }
         data.bio1 = res.bio1 ?? null;
         data.bio2 = Object.keys(res)
           .filter(key => key.startsWith("bio2_"))

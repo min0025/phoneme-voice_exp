@@ -1,8 +1,6 @@
 function buildExperimentTimeline() {
   const {
-    collectWorkerId,
-    enableScreening,
-    enabledPhases: { practice, block1, block2, block3 },
+    enabledPhases: phases,
     textMainTrialCount,
     textMainStimuli,
   } = experiment_config;
@@ -10,10 +8,17 @@ function buildExperimentTimeline() {
   const laterBlocks = jsPsych.randomization.shuffle([
     { modality: "text", stimuli: textMainStimuli },
     { modality: "audio", stimuli: only_voice_stimuli },
-  ]).map((block, index) => ({ ...block, blockNumber: index + 2 }))
-    .filter(({ blockNumber }) => blockNumber === 2 ? block2 : block3);
+  ]).map((block, index) => {
+    const blockNumber = index + 2;
+    return {
+      ...block,
+      blockNumber,
+      enabled: phases[`block${blockNumber}`],
+      showInstructions: phases[`block${blockNumber}Instructions`],
+    };
+  });
 
-  const hasTextBlock = laterBlocks.some(({ modality }) => modality === "text");
+  const hasTextBlock = laterBlocks.some(({ modality, enabled }) => enabled && modality === "text");
   if (hasTextBlock && (
       !Array.isArray(textMainStimuli) || textMainStimuli.length !== textMainTrialCount ||
       textMainStimuli.some(stim => !stim?.id || typeof stim.text !== "string" || !stim.text.trim()) ||
@@ -25,54 +30,45 @@ function buildExperimentTimeline() {
     }];
   }
 
-  const practiceTimeline = practice ? [
-    practice_intermission,
-    gap,
-    ...createEvaluationTrials(jsPsych.randomization.shuffle([...practice_stimuli]), {
-      modality: "audio", phase: "practice",
-    }),
-    gap,
-  ] : [];
-  const firstBlockTimeline = block1 ? [
-    practice ? intermission : createBlockNotice(1, "audio"),
-    gap,
-    ...createEvaluationTrials(jsPsych.randomization.shuffle([...phoneme_voice_stimuli]), {
-      blockNumber: 1, modality: "audio", phase: "main",
-    }),
-    gap,
-  ] : [];
-  const laterTimeline = laterBlocks.flatMap(({ blockNumber, modality, stimuli }) => [
-    createBlockNotice(blockNumber, modality),
-    gap,
-    ...createEvaluationTrials(modality === "audio" ? jsPsych.randomization.shuffle([...stimuli]) : stimuli, {
-      blockNumber, modality, phase: "main",
-    }),
-    gap,
-  ]);
-  const completeExperiment = practice && block1 && block2 && block3;
+  const withGap = trials => trials.length > 0 && phases.gaps ? [...trials, gap] : trials;
+  const when = (enabled, trial) => enabled ? withGap([trial]) : [];
+  const evaluation = (enabled, stimuli, options) => {
+    if (!enabled) return [];
+    const orderedStimuli = options.modality === "audio" ? jsPsych.randomization.shuffle([...stimuli]) : stimuli;
+    return withGap(createEvaluationTrials(orderedStimuli, options));
+  };
+
+  const canSaveResults = Object.entries(phases).every(([phase, enabled]) =>
+    phase === "workerId" || phase === "screening" || enabled
+  );
 
   return [
-    consent_form,
-    gap,
-    ...(collectWorkerId ? [worker_id_form, gap] : []),
-    ...(enableScreening ? [screening, gap] : []),
-    volume_adjustment,
-    gap,
-    ...(enableScreening ? [record_screening_result, gap] : []),
-    experiment_notice,
-    gap,
-    fullscreen_notice,
-    gap,
-    ...practiceTimeline,
-    ...firstBlockTimeline,
-    ...laterTimeline,
-    demographics,
-    gap,
-    post_experiment_survey,
-    gap,
-    exit_fullscreen,
-    ...(completeExperiment ? [save_data, thanks] : [debug_end]),
+    ...when(phases.consent, consent_form),
+    ...when(phases.workerId, worker_id_form),
+    ...when(phases.screening, screening),
+    ...when(phases.volumeAdjustment, volume_adjustment),
+    ...when(phases.screening, record_screening_result),
+    ...when(phases.overview || phases.fullscreen, createExperimentNotice(phases.overview, phases.fullscreen)),
+    ...when(phases.precautions, createPrecautionsNotice(phases.fullscreen, phases.postExperimentSurvey)),
+    ...when(phases.practiceInstructions, practice_intermission),
+    ...evaluation(phases.practice, practice_stimuli, { modality: "audio", phase: "practice" }),
+    ...when(phases.block1Instructions, phases.practice ? intermission : createBlockNotice(1, "audio")),
+    ...evaluation(phases.block1, phoneme_voice_stimuli, { blockNumber: 1, modality: "audio", phase: "main" }),
+    ...laterBlocks.flatMap(({ blockNumber, modality, stimuli, enabled, showInstructions }) => [
+      ...when(showInstructions, createBlockNotice(blockNumber, modality)),
+      ...evaluation(enabled, stimuli, { blockNumber, modality, phase: "main" }),
+    ]),
+    ...when(phases.demographics, demographics),
+    ...when(phases.postExperimentSurvey, post_experiment_survey),
+    ...(phases.fullscreen ? [exit_fullscreen] : []),
+    ...(canSaveResults ? [save_data] : []),
+    ...(phases.completionScreen ? [canSaveResults ? thanks : debug_end] : []),
   ];
 }
 
-jsPsych.run(buildExperimentTimeline());
+const experimentTimeline = buildExperimentTimeline();
+jsPsych.run(experimentTimeline.length ? experimentTimeline : [{
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: "<p>有効な画面・試行がありません。実験設定を確認してください。</p>",
+  choices: "NO_KEYS",
+}]);

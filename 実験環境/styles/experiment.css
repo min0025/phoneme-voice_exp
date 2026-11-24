@@ -135,6 +135,39 @@
   word-break: keep-all;  /* ←日本語改行防止 */
 }
 
+.naturalness-question {
+  min-inline-size: 0;
+  margin: 44px auto;
+  padding: 0 12px;
+  border: 0;
+}
+
+.naturalness-question legend {
+  padding: 0;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.naturalness-scale {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 900px;
+  margin: 30px auto 0;
+}
+
+.naturalness-scale label {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.naturalness-scale input {
+  transform: scale(1.7);
+}
+
 #jspsych-content:has(.text-stimulus-container) {
   max-width: min(100vw, 1900px);
 }
