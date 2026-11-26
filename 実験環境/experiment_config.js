@@ -3,7 +3,7 @@ const experiment_config = {
   volumeAudioPath: "./assets/practice/VOICEACTRESS100_026_006.wav",
 
   // false にした画面や試行を省略します。案内と試行は個別に切り替えられます。
-  // workerId と screening は任意です。それ以外を省略するとDataPipeに送信しません。
+  // workerId と screening は任意です。それ以外を省略したときは下の saveDebugResults が適用されます。
   enabledPhases: {
     consent: true,
     workerId: false,
@@ -13,19 +13,23 @@ const experiment_config = {
     fullscreen: true, // 入室時の全画面化と終了時の解除
     precautions: true,
     practiceInstructions: true,
-    practice: false,
+    practice: true,
     block1Instructions: true,
     block1: true,
     block2Instructions: true,
-    block2: false,
+    block2: true,
     block3Instructions: true,
-    block3: false,
+    block3: true,
     demographics: true,
     postExperimentSurvey: true,
     saveResults: true,
     completionScreen: true,
     gaps: true, // 画面切り替え時の空白
   },
+
+  // true にすると省略設定でも debug_ 付きの確認用CSVを送ります。
+  // saveResults: false は常に送信を止めます。
+  saveDebugResults: false,
 
   // 第1ブロックは10話者×6種類、後半の音声ブロックは同じ10話者のニュートラル音声です。
   audioSpeakerIds: ["jvs016", "jvs028", "jvs034", "jvs042", "jvs043", "jvs045", "jvs079", "jvs084", "jvs090", "jvs091"],
@@ -35,7 +39,7 @@ const experiment_config = {
   // 文字ブロック内では配列に記載した順に提示します。id は重複させないでください。
   textMainTrialCount: 7,
   textMainStimuli: [
-    { id: "text_neutral", text: "今日、机の上にあった紙を三枚数え、箱に入れた" },
+    { id: "text_neutral", text: "今日、机の上にあった紙を三枚数え、箱に入れた。" },
     { id: "text_washi", text: "わしは今日、机に置いてあった紙を三枚数えて箱に入れたのじゃ。" },
     { id: "text_wagahai", text: "わがはいは今日、机に置いてあった紙を三枚数えて箱に入れたのだ。" },
     { id: "text_boku", text: "ぼくは今日、机に置いてあった紙を三枚数えて箱に入れたのさ。" },
@@ -45,6 +49,6 @@ const experiment_config = {
   ],
 
   // DataPipeへの保存先とCSVファイル名の接頭辞です。
-  dataPipeExperimentId: "ibgfsqbZCYS1",
+  dataPipeExperimentId: "4oeWvh1Pybs6",
   resultFilenamePrefix: "characteristic_voice",
 };

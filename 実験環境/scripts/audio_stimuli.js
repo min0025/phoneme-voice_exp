@@ -1,18 +1,18 @@
 // =========================
 // 話者性別のメタデータ
 // =========================
-const speaker_gender_map = [
-  "M", "F", "M", "F", "M", "M", "F", "F", "M", "F",
-  "M", "M", "M", "F", "F", "F", "F", "F", "F", "M",
-  "M", "M", "M", "F", "F", "F", "F", "M", "F", "F",
-  "M", "M", "M", "M", "F", "F", "M", "F", "F", "F",
-  "M", "M", "F", "M", "M", "M", "M", "M", "M", "M",
-  "F", "M", "F", "M", "F", "F", "F", "F", "F", "F",
-  "F", "F", "F", "F", "F", "F", "F", "M", "F", "M",
-  "M", "F", "M", "M", "M", "M", "M", "M", "M", "M",
-  "M", "F", "F", "F", "F", "M", "M", "M", "M", "F",
-  "F", "F", "F", "F", "F", "F", "M", "M", "M", "M",
-];
+const speaker_gender_map = {
+  jvs016: "F",
+  jvs028: "M",
+  jvs034: "M",
+  jvs042: "M",
+  jvs043: "F",
+  jvs045: "M",
+  jvs079: "M",
+  jvs084: "F",
+  jvs090: "F",
+  jvs091: "F",
+};
 
 // =========================
 // 本試行・練習試行の刺激一覧
@@ -24,7 +24,7 @@ function createAudioStimulus(speakerId, label, folder) {
     id: stimulusId,
     stim_num: speakerNumber,
     speaker_id: speakerId,
-    speaker_gender: speaker_gender_map[Number(speakerNumber) - 1],
+    speaker_gender: speaker_gender_map[speakerId],
     file: `./assets/voice/${folder}/${encodeURIComponent(stimulusId.normalize("NFC"))}.opus`,
   };
 }

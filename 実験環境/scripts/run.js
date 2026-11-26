@@ -1,6 +1,7 @@
 function buildExperimentTimeline() {
   const {
     enabledPhases: phases,
+    saveDebugResults,
     textMainTrialCount,
     textMainStimuli,
   } = experiment_config;
@@ -38,9 +39,13 @@ function buildExperimentTimeline() {
     return withGap(createEvaluationTrials(orderedStimuli, options));
   };
 
-  const canSaveResults = Object.entries(phases).every(([phase, enabled]) =>
-    phase === "workerId" || phase === "screening" || enabled
+  const fullExperiment = Object.entries(phases).every(([phase, enabled]) =>
+    phase === "workerId" || phase === "screening" || phase === "saveResults" || enabled
   );
+  const shouldSave = phases.saveResults && (fullExperiment || saveDebugResults);
+  const finishTimeline = shouldSave
+    ? createDataPipeTimeline(!fullExperiment, phases.completionScreen)
+    : (phases.completionScreen ? [debug_end] : []);
 
   return [
     ...when(phases.consent, consent_form),
@@ -61,8 +66,7 @@ function buildExperimentTimeline() {
     ...when(phases.demographics, demographics),
     ...when(phases.postExperimentSurvey, post_experiment_survey),
     ...(phases.fullscreen ? [exit_fullscreen] : []),
-    ...(canSaveResults ? [save_data] : []),
-    ...(phases.completionScreen ? [canSaveResults ? thanks : debug_end] : []),
+    ...finishTimeline,
   ];
 }
 

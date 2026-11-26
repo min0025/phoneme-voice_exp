@@ -1,13 +1,14 @@
 const confirmationCode = Math.floor(Math.random() * 90000) + 10000;
 const jsPsych = initJsPsych();
 
-function createResultFilename() {
+function createResultFilename(isDebug) {
   const now = new Date();
   const twoDigits = value => String(value).padStart(2, "0");
   const date = `${now.getFullYear()}${twoDigits(now.getMonth() + 1)}${twoDigits(now.getDate())}`;
   const time = [now.getHours(), now.getMinutes(), now.getSeconds()].map(twoDigits).join("");
   const subjectId = jsPsych.randomization.randomID(10);
-  return `${experiment_config.resultFilenamePrefix}${date}-${time}-${subjectId}.csv`;
+  const debugPrefix = isDebug ? "debug_" : "";
+  return `${debugPrefix}${experiment_config.resultFilenamePrefix}${date}-${time}-${subjectId}.csv`;
 }
 
 // 画面切り替え時のインターバルです。
@@ -17,15 +18,56 @@ const gap = {
   trial_duration: 300,
 };
 
-const save_data = {
-  type: jsPsychPipe,
-  action: "save",
-  experiment_id: experiment_config.dataPipeExperimentId,
-  filename: createResultFilename(),
-  data_string: () => jsPsych.data.get().csv(),
+const confirmation_form = {
+  type: jsPsychSurveyHtmlForm,
+  preamble: `
+    <h1>最後に、確認コードを入力してください</h1>
+    <p style="font-size: 20px;">参加確認に使う5桁のコードです。控えを取ってから、同じコードを入力してください。</p>
+    <p id="participant-confirmation-code" style="font-size: 56px; font-weight: bold; margin: 32px 0;">${confirmationCode}</p>
+  `,
+  html: `
+    <p>
+      <label for="confirmation-code-input">確認コード（半角数字5桁）：</label>
+      <input id="confirmation-code-input" name="confirmation_code" type="text"
+             inputmode="numeric" pattern="[0-9]{5}" maxlength="5" autocomplete="off" required
+             aria-describedby="confirmation-code-error"
+             style="width: 120px; padding: 8px; font-size: 20px;">
+    </p>
+    <p id="confirmation-code-error" role="alert" style="color: #a00;" hidden>
+      コードが一致しません。表示された5桁の数字を確認してください。
+    </p>
+  `,
+  button_label: "送信",
+  on_load() {
+    const form = document.getElementById("jspsych-survey-html-form");
+    const input = document.getElementById("confirmation-code-input");
+    const error = document.getElementById("confirmation-code-error");
+    const submit = document.getElementById("jspsych-survey-html-form-next");
+
+    const update = () => {
+      submit.disabled = !input.validity.valid;
+      error.hidden = true;
+      input.removeAttribute("aria-invalid");
+    };
+    input.addEventListener("input", update);
+    update();
+
+    form.addEventListener("submit", event => {
+      if (input.value === String(confirmationCode)) return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      error.hidden = false;
+      input.setAttribute("aria-invalid", "true");
+      input.focus();
+    }, { capture: true });
+  },
+  on_finish(data) {
+    data.confirmation_code = data.response.confirmation_code;
+  },
 };
 
-// 保存後に確認コードを表示して終了案内を出す画面です。
+// 本番の送信が受理された後に確認コードを表示します。
 const thanks = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus:
@@ -44,3 +86,39 @@ const debug_end = {
   stimulus: "<h1>デバッグ実行が終了しました</h1>",
   choices: "NO_KEYS",
 };
+
+function createDataPipeTimeline(isDebug, showCompletion) {
+  const filename = createResultFilename(isDebug);
+  let accepted = false;
+  const saveTrial = {
+    type: jsPsychPipe,
+    action: "save",
+    experiment_id: experiment_config.dataPipeExperimentId,
+    filename,
+    data_string: () => jsPsych.data.get().csv(),
+    wait_message: "<p>データを送信しています。この画面を閉じずにお待ちください。</p>",
+    on_finish(data) {
+      const result = data.result;
+      accepted = data.success === true && Object.prototype.toString.call(result) === "[object Object]" &&
+        (typeof result?.message === "string" || result?.error === null);
+      if (!accepted) console.error("DataPipe submission was not confirmed:", result);
+    },
+  };
+
+  if (!showCompletion) return [confirmation_form, saveTrial];
+
+  const resultScreen = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: () => {
+      if (!accepted) {
+        return "<h1>データの送信を確認できませんでした</h1><p>この画面を閉じる前に、実験担当者にご連絡ください。</p>";
+      }
+      if (isDebug) {
+        return `<h1>DataPipeが確認用データを受理しました</h1><p>${filename}</p>`;
+      }
+      return thanks.stimulus;
+    },
+    choices: "NO_KEYS",
+  };
+  return [confirmation_form, saveTrial, resultScreen];
+}
