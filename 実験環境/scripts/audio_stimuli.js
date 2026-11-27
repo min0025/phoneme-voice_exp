@@ -25,7 +25,7 @@ function createAudioStimulus(speakerId, label, folder) {
     stim_num: speakerNumber,
     speaker_id: speakerId,
     speaker_gender: speaker_gender_map[speakerId],
-    file: `./assets/voice/${folder}/${encodeURIComponent(stimulusId.normalize("NFC"))}.opus`,
+    file: `./assets/voice/${folder}/${encodeURIComponent(stimulusId.normalize("NFC"))}.wav`,
   };
 }
 

@@ -31,7 +31,7 @@ const experiment_config = {
   // saveResults: false は常に送信を止めます。
   saveDebugResults: false,
 
-  // 第1ブロックは10話者×6種類、後半の音声ブロックは同じ10話者のニュートラル音声です。
+  // 「候補G_SoX話速調整」の音声を使用します。第1ブロックは1A〜3Bの60本、後半の音声ブロックはニュートラルの10本です。
   audioSpeakerIds: ["jvs016", "jvs028", "jvs034", "jvs042", "jvs043", "jvs045", "jvs079", "jvs084", "jvs090", "jvs091"],
   phonemeVoiceLabels: ["あたし型", "おれ型", "ぼく型", "わがはい型", "わし型", "わたくし型"],
 
