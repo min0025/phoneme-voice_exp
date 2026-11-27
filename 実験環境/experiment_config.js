@@ -7,7 +7,7 @@ const experiment_config = {
   enabledPhases: {
     consent: true,
     workerId: false,
-    screening: false,
+    screening: true,
     volumeAdjustment: true,
     overview: true,
     fullscreen: true, // 入室時の全画面化と終了時の解除
