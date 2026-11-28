@@ -33,10 +33,18 @@ function buildExperimentTimeline() {
 
   const withGap = trials => trials.length > 0 && phases.gaps ? [...trials, gap] : trials;
   const when = (enabled, trial) => enabled ? withGap([trial]) : [];
-  const evaluation = (enabled, stimuli, options) => {
+  const evaluation = (enabled, stimuli, options, halfwayBreak = false) => {
     if (!enabled) return [];
     const orderedStimuli = options.modality === "audio" ? jsPsych.randomization.shuffle([...stimuli]) : stimuli;
-    return withGap(createEvaluationTrials(orderedStimuli, options));
+    const trials = createEvaluationTrials(orderedStimuli, options);
+    if (!halfwayBreak || trials.length < 2) return withGap(trials);
+
+    const midpoint = Math.floor(trials.length / 2);
+    return [
+      ...withGap(trials.slice(0, midpoint)),
+      ...withGap([createFirstBlockBreak(midpoint, trials.length)]),
+      ...withGap(trials.slice(midpoint)),
+    ];
   };
 
   const fullExperiment = Object.entries(phases).every(([phase, enabled]) =>
@@ -50,17 +58,20 @@ function buildExperimentTimeline() {
   return [
     ...when(phases.consent, consent_form),
     ...when(phases.workerId, worker_id_form),
-    ...when(phases.screening, screening),
     ...when(phases.volumeAdjustment, volume_adjustment),
+    ...when(phases.screening, screening),
     ...when(phases.screening, record_screening_result),
     ...when(phases.overview || phases.fullscreen, createExperimentNotice(phases.overview, phases.fullscreen)),
     ...when(phases.precautions, createPrecautionsNotice(phases.fullscreen, phases.postExperimentSurvey)),
     ...when(phases.practiceInstructions, practice_intermission),
     ...evaluation(phases.practice, practice_stimuli, { modality: "audio", phase: "practice" }),
-    ...when(phases.block1Instructions, phases.practice ? intermission : createBlockNotice(1, "audio")),
-    ...evaluation(phases.block1, phoneme_voice_stimuli, { blockNumber: 1, modality: "audio", phase: "main" }),
+    ...when(phases.block1Instructions, createBlockNotice(1, "audio", phoneme_voice_stimuli.length, {
+      afterPractice: phases.practice,
+      halfwayBreak: phases.block1Break,
+    })),
+    ...evaluation(phases.block1, phoneme_voice_stimuli, { blockNumber: 1, modality: "audio", phase: "main" }, phases.block1Break),
     ...laterBlocks.flatMap(({ blockNumber, modality, stimuli, enabled, showInstructions }) => [
-      ...when(showInstructions, createBlockNotice(blockNumber, modality)),
+      ...when(showInstructions, createBlockNotice(blockNumber, modality, modality === "audio" ? stimuli.length : textMainTrialCount)),
       ...evaluation(enabled, stimuli, { blockNumber, modality, phase: "main" }),
     ]),
     ...when(phases.demographics, demographics),

@@ -89,6 +89,7 @@ function createEvaluationTrials(stimuli, { blockNumber = null, modality, phase }
   <hr>
 
   <div id="question-area"${isAudio ? ' style="visibility: hidden; pointer-events: none;"' : ""}>
+    ${isAudio ? voice_evaluation_note_html : ""}
     <p style="font-size: 19px; margin-top: 50px;">
       <b>Q1. ${stimulusLabel}の印象について、下記の項目に最もよく当てはまるものを答えてください</b>
     </p>

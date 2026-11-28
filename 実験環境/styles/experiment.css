@@ -6,6 +6,32 @@
   margin: 0 auto 28px;
 }
 
+.audio-evaluation-note {
+  box-sizing: border-box;
+  max-width: 980px;
+  margin: 28px auto;
+  padding: 16px 20px;
+  border-left: 4px solid #193543;
+  background: #f1f5f7;
+  font-size: 19px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.block-instructions {
+  box-sizing: border-box;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 32px;
+  font-size: 20px;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.block-instructions h1 {
+  text-align: center;
+}
+
 .stimulus-box {
   padding: 0px;
   margin-bottom: 20px;

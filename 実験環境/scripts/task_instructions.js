@@ -27,6 +27,29 @@ const voice_task_steps_html = `
   </ol>
 `;
 
+const voice_setup_html = `
+  <p style="font-size: 20px; margin: 0 0 20px 0;">
+    <strong>イヤホンまたはヘッドホンを装着し、パソコンの音声設定がステレオになっていることを確認してください。</strong>
+    可能であれば有線のものを使用してください。
+  </p>
+`;
+
+const voice_evaluation_note_html = `
+  <p class="audio-evaluation-note">
+    録音や再生の音質（ノイズや音の歪みなど）は評価に含めず、<strong>話している人の声の特徴と言葉遣い</strong>に着目して回答してください。
+  </p>
+`;
+
+const text_task_steps_html = `
+  <ol style="font-size: 18px; line-height: 1.9; padding-left: 1.8em; margin: 0 0 28px 0;">
+    <li style="margin-bottom: 18px;">画面上部に表示される文を読み、その下の設問に回答してください。</li>
+    <li style="margin-bottom: 18px;">
+      <b>Q1で文の印象を6項目それぞれ7段階で</b>評価してください。
+      Q2では最も当てはまる人物像を1つ選び、Q3ではQ2で選んだ人物像も含めて、当てはまるものをすべて選んでください。
+    </li>
+  </ol>
+`;
+
 const next_stimulus_instruction = "すべての項目に回答すると「次へ」を押せるようになります。";
 
 // 本実験の概要と全画面化の予告を出す最初の説明ページです。
@@ -98,23 +121,13 @@ const practice_intermission = {
           音声を聞く課題と、画面に表示された文を読む課題があります。それぞれについて、感じた印象や思い浮かんだ人物像を回答してください。
         </p>
         <h2 style="font-size: 22px; margin: 28px 0 16px;">音声を聞く課題（Q1〜Q4）</h2>
-        <p style="font-size: 20px; margin: 0 0 20px 0;">
-          <b><u>「イヤホン」または「ヘッドホン」を装着していることを、ここでもう一度ご確認ください。可能であれば「有線」のものをご使用ください。</u></b>
-        </p>
-        <p style="font-size: 20px; margin: 0 0 20px 0;">
-          <b><u>また、パソコンのサウンド環境が「モノラル」ではなく「ステレオ」になっていることもご確認ください。</u></b>
-        </p>
+        ${voice_setup_html}
+        ${voice_evaluation_note_html}
         ${voice_task_steps_html}
         <img class="task-flow-image" src="./assets/images/audio-task-flow.png"
              alt="音声の手順。再生して最後まで聞く。印象、言葉と声の相性、人物像の4問に答えて次の音声へ進む。">
         <h2 style="font-size: 22px; margin: 28px 0 16px;">文字を読む課題（Q1〜Q3）</h2>
-        <ol style="font-size: 18px; line-height: 1.9; padding-left: 1.8em; margin: 0 0 28px 0;">
-          <li style="margin-bottom: 18px;">画面上部に表示される文を読み、その下の設問に回答してください。</li>
-          <li style="margin-bottom: 18px;">
-            <b>Q1で文の印象を6項目それぞれ7段階で</b>評価してください。
-            Q2では最も当てはまる人物像を1つ選び、Q3ではQ2で選んだ人物像も含めて、当てはまるものをすべて選んでください。
-          </li>
-        </ol>
+        ${text_task_steps_html}
         <img class="task-flow-image" src="./assets/images/text-task-flow.png"
              alt="文章の手順。画面上部の文を読む。印象と人物像の3問に答えて次の文章へ進む。">
         <p style="font-size: 18px; margin: 0 0 24px 0;">
@@ -129,50 +142,47 @@ const practice_intermission = {
   on_load: spaceInstructionButton,
 };
 
-// 練習後に本試行前の確認をしてもらうページです。
-const intermission = {
-  type: jsPsychHtmlButtonResponse,
-  stimulus: `
-      <div style="max-width: 1280px; margin: 0 auto; padding: 52px 32px 72px; box-sizing: border-box; text-align: left; color: #000;">
-        <h1 style="font-size: 34px; text-align: center; margin: 0 0 48px 0;">練習は以上になります</h1>
-        <p style="font-size: 20px; margin: 0 0 18px 0;">
-          音声が流れないとか、画面が固まってしまったなど問題はありませんでしたか？ もし、不具合がありましたら、お手数ですが、<u><b>Escキー</b></u>を押して同意取得からやり直してみてください。
-        </p>
-        <p style="font-size: 20px; margin: 0 0 18px 0;">
-          <b><u>本番に進む前に、「イヤホン」または「ヘッドホン」を装着していることをもう一度ご確認ください。可能であれば「有線」のものをご使用ください。</u></b>
-        </p>
-        <p style="font-size: 20px; margin: 0 0 18px 0;">
-          <b><u>また、パソコンのサウンド環境が「モノラル」ではなく「ステレオ」になっていることもご確認ください。</u></b>
-        </p>
-        <p style="font-size: 20px; margin: 0 0 20px 0;">
-          下記の手順を今一度ご確認ください。
-        </p>
-        ${voice_task_steps_html}
-        <p style="font-size: 17px; margin: 0 0 18px 0;">${next_stimulus_instruction}</p>
-        <p style="font-size: 17px; margin: 0 0 18px 0;">
-          ※もし、現段階や実験中に参加を取りやめます場合は、<u><b>Escキー</b></u>を押してブラウザを閉じてください。（謝礼はお支払いできませんのでご了承ください）
-        </p>
-        <p style="font-size: 20px; margin: 0;">
-          準備ができたら「次へ」ボタンを押して、第1ブロックの本試行に進んでください。
-        </p>
-      </div>`,
-  choices: ["次へ"],
-  on_load: spaceInstructionButton,
-};
-
-function createBlockNotice(blockNumber, modality) {
-  const instruction = modality === "audio"
-    ? "音声を最後まで聞いてください。音声の印象や、言葉と声の組み合わせの自然さを評価し、想起する人物像を選んでください。"
-    : "画面に表示される文字を読んで、印象と想起する人物像を回答してください。";
+function createBlockNotice(blockNumber, modality, trialCount, { afterPractice = false, halfwayBreak = false } = {}) {
+  const isAudio = modality === "audio";
+  const introduction = isAudio
+    ? `このブロックでは、音声${trialCount}本を1本ずつ聞いて評価します。`
+    : `このブロックでは、文章${trialCount}件を1件ずつ読んで評価します。`;
+  const restGuidance = blockNumber > 1
+    ? "休憩が必要な方は、この画面を開いたまま少し休んでください。"
+    : halfwayBreak
+      ? `${Math.floor(trialCount / 2)}試行が終わったところで、5分程度の休憩を取ります。`
+      : "";
 
   return {
     type: jsPsychHtmlButtonResponse,
     stimulus: `
-      <h1>第${blockNumber}ブロック</h1>
-      <p>${instruction}</p>
-      <p>すべての項目に回答すると「次へ」ボタンを押せるようになります。</p>
+      <section class="block-instructions">
+        <h1>第${blockNumber}ブロック</h1>
+        ${afterPractice ? "<p>練習は以上です。再生と回答の流れを確認してから、本試行に進んでください。</p>" : ""}
+        <p><strong>${introduction}</strong></p>
+        ${isAudio ? voice_setup_html + voice_evaluation_note_html + voice_task_steps_html : text_task_steps_html}
+        <p>${next_stimulus_instruction}</p>
+        ${restGuidance ? `<p><strong>${restGuidance}</strong></p>` : ""}
+        <p>準備ができたら「開始」を押してください。</p>
+      </section>
     `,
-    choices: ["次へ"],
+    choices: ["開始"],
+  };
+}
+
+function createFirstBlockBreak(completed, total) {
+  return {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <section class="block-instructions">
+        <h1>第1ブロックの途中休憩</h1>
+        <p>${total}試行のうち${completed}試行が終わりました。</p>
+        <p><strong>画面を開いたまま、5分程度の休憩を取ってください。</strong></p>
+        <p>準備ができたら「再開」を押してください。</p>
+      </section>
+    `,
+    choices: ["再開"],
+    data: { phase: "block1_break", trials_completed: completed },
   };
 }
 

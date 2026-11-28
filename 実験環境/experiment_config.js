@@ -16,6 +16,7 @@ const experiment_config = {
     practice: true,
     block1Instructions: true,
     block1: true,
+    block1Break: true,
     block2Instructions: true,
     block2: true,
     block3Instructions: true,
